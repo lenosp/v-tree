@@ -9,7 +9,8 @@
 
 ***en:You can see it. Functions are gradually improving.***
 
-***zh:你可以看下演示.功能逐步完善中***
+***zh:你可以看下演示.功能逐步完善中.***
+[image](https://github.com/lenosp/v-tree/blob/master/TIM%E6%88%AA%E5%9B%BE20181202211248.png)
 ``` bash
 # install dependencies
 npm install
