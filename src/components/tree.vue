@@ -15,6 +15,8 @@
              :currentArray="treeData"
              :parentTree="node.parentTree"
              :rootData="treeData"
+             :checkBoxCallInit="checkBoxCallInit"
+             :checkBoxCall="checkBoxCall"
       />
     </ul>
   </div>
@@ -70,7 +72,8 @@
         treeData: [],
         line: '',
         first: true,
-        allOpens: this.allOpen
+        allOpens: this.allOpen,
+        checkedBoxCallArr: [],
       }
     },
     methods: {
@@ -79,11 +82,11 @@
 
         let initTree = (tree, parent) => {
           tree.forEach((m, index) => {
+            if (!m.hasOwnProperty("id")) {
+              m.id = m.hasOwnProperty("id") ? m.id : null;
+            }
             if (!m.hasOwnProperty("open")) {
-              if (this.allOpens!=null) {
-                m.open = this.allOpens
-              } else
-                m.open = m.hasOwnProperty("open") ? m.open : false;
+              m.open = m.hasOwnProperty("open") ? m.open : false;
             }
             if (!m.hasOwnProperty("checked")) {
               m.checked = m.hasOwnProperty("checked") ? m.checked : false;
@@ -124,6 +127,41 @@
         if (this.first)
           this.$emit('call', this.treeData);
       },
+      changeOpenStatus() {
+        let changeOpen = (data) => {
+          data.forEach(d => {
+            d.open = this.allOpen;
+            if (d.children) changeOpen(d.children);
+          });
+        };
+        changeOpen(this.treeData);
+      },
+      checkBoxCallInit(arr) {
+        arr.forEach(a => {
+          this.checkedBoxCallArr.push(a);
+        });
+      },
+      checkBoxCall(arr, isAdd) {
+        if (isAdd)
+          arr.forEach(a => {
+            this.checkedBoxCallArr.push(a);
+          });
+        else {
+          arr.forEach(a => {
+            if (this.checkBoxCall.length === 0)
+              return;
+            let key = (a.id ? a.id : null) + a.index + a.name;
+
+            this.checkedBoxCallArr.forEach((ss, index) => {
+              if (((ss.id ? ss.id : null) + ss.index + ss.name) === key) {
+                this.checkedBoxCallArr.splice(index, 1);
+
+              }
+            });
+          });
+        }
+        this.$emit('checkBoxCall', this.checkedBoxCallArr);
+      },
     },
     created() {
       this.init();
@@ -134,11 +172,13 @@
     mounted() {
       Vue.nextTick(() => {
         this.init();
-      })
+      });
+      /*复选框回调*/
+      this.$emit('checkBoxCall', this.checkedBoxCallArr);
     },
     watch: {
       allOpen() {
-        this.init()
+        this.changeOpenStatus()
       }
     }
   }

@@ -12,15 +12,16 @@
       :beforeClick="beforeClick"
       :checkBoxType="checkBoxType"
       @call="call"
-      />
+      @checkBoxCall="checkBoxCall"
+    />
 
     ----------------------------------
     <br/>
-   <!-- <button @click="allOpen=!allOpen">
+    <button @click="allOpen=!allOpen">
       <span :style="{color:allOpen?'#66CD00':'red'}">
       {{isOpen()}}
       </span>
-    </button>-->
+    </button>
     <button @click="openFirst">
       <span :style="{color:firstIsOpen?'#66CD00':'red'}">
       {{firstIsOpen?'已打开':'已关闭'}}
@@ -39,6 +40,10 @@
       </span>
       复选框
     </button>
+    <br/>
+    <pre>
+      {{shuoming()}}
+    </pre>
     <!--<button @click="checkBoxed=!checkBoxed">
        <span :style="{color:checkBoxed?'#66CD00':'red'}">
       {{checkBoxed?'已选中':'已清空'}}
@@ -95,6 +100,10 @@
           return this.allOpen ? '已开启所有' : '已关闭所有';
         }
       },
+      /*复选框选中/取消 回调*/
+      checkBoxCall(checkBox) {
+        console.log('checkBox', checkBox);
+      },
       beforeClick(node) {
         //可操作内部
         console.log('beforeClick', node);
@@ -112,20 +121,52 @@
         console.log('value', value);
       },
       openFirst() {
-        this.trees[0].open=!this.trees[0].open;
+        this.trees[0].open = !this.trees[0].open;
         this.firstIsOpen = this.trees[0].open;
       },
       /*回调初始化后的数据 以后修改tree实现对节点的操作即可*/
       call(data) {
-        console.log('data',data);
+        //console.log('data', data);
         this.trees = data;
       }
     },
-    updated() {
-      //console.log('updated', this.treeNode);
-    },
     mounted() {
-      this.allOpen=true
+      this.allOpen = true;
+
+    },
+    computed: {
+      shuoming() {
+        return function () {
+          return `
+          /*
+          <Tree
+              <!--Render data format 渲染数据-->
+              :treeNode='treeNode'
+
+              <!--Open/close all nodes 打开/关闭所有节点-->
+              :allOpen='allOpen'
+
+              <!--Click on a node to trigger a node event 点击节点是否触发节点事件-->
+              :clickChange='clickChange'
+
+              <!--Open/close the check box 开启/关闭复选框-->
+              :checkBox='checkBox'
+
+              :checkBoxed='checkBoxed'
+
+              :beforeClick='beforeClick'
+
+              :checkBoxType='checkBoxType'
+
+              @call='call'
+
+            <!--Check/uncheck check box callback function 选中/取消选中复选框回调函数-->
+              @checkBoxCall='checkBoxCall'
+          />
+          */
+          `;
+        }
+      }
     },
     created() {
       this.treeNode = [
@@ -141,12 +182,12 @@
                   id: "1-1-1-1", name: "叶子节点221111",
                   children: [
                     {
-                      id: "2-1--1", name: "叶子节点231111",
+                      id: "2-1--1", name: "叶子节点2321111",
                       children: [
                         {
                           id: "2-1---1", name: "叶子节点231111",
                           children: [
-                            {checked:true,id: "2-1---1", name: "叶子节点23111"}]
+                            {checked: true, id: "2-1---1", name: "叶子节点23111"}]
                         }]
                     }]
                 },

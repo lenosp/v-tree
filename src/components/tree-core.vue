@@ -35,6 +35,8 @@
         :parentTree="tr.parentTree"
         :rootData="rootData"
         @checkedBoxV="checkedBoxV"
+        :checkBoxCallInit="checkBoxCallInit"
+        :checkBoxCall="checkBoxCall"
         :last="tree.children.length-1===i"/>
     </ul>
   </li>
@@ -109,6 +111,12 @@
       parentTree: {
         type: Object,
         required: false,
+      },
+      checkBoxCallInit: {
+        type: Function,
+      },
+      checkBoxCall: {
+        type: Function,
       }
 
     },
@@ -123,10 +131,18 @@
         this.line = this.currentArray.length - 1 === this.index ? '' : 'line';
         if (this.tree.parentTree && this.tree.checked) {
           /*方案一 Scheme 1*/
+          let checkedBoxArr = [];
+          checkedBoxArr.push(this.tree);
           let selectParent = (data) => {
-            if (!data.checked)
+            if (!data.checked) {
               data.checked = this.tree.checked;
-            if (data.parentTree) selectParent(data.parentTree);
+              checkedBoxArr.push(data);
+            }
+            if (data.parentTree) {
+              selectParent(data.parentTree);
+            } else {
+              this.checkBoxCallInit(checkedBoxArr);
+            }
           };
           selectParent(this.currentTree);
           /*方案二 Scheme 2*/
@@ -158,11 +174,15 @@
         if (this.clickChange) {
           this.tree.open = !this.tree.open;
         }
+
       },
       selectCheckBox(tree) {
         tree.checked = !tree.checked;
+        let checkedBoxArr = [];
+        checkedBoxArr.push(tree);
         let changeChecked = (data) => {
           data.forEach(d => {
+            checkedBoxArr.push(d);
             d.checked = tree.checked;
             if (d.children) changeChecked(d.children);
           });
@@ -182,20 +202,20 @@
               if (index !== this.index)
                 childExistsThis.push(m);
             });
-            if (childExistsThis && data.checked && checkChildren(childExistsThis)) {
+            if (childExistsThis && data.checked && checkChildren(childExistsThis))
               return;
-            }
           }
+          checkedBoxArr.push(data);
           data.checked = tree.checked;
           if (data.parentTree) selectParent(data.parentTree);
         };
         if (this.parentTree)
           selectParent(this.parentTree);
+        this.checkBoxCall(checkedBoxArr, tree.checked);
       }
     },
     created() {
       this.coreInit();
-
     },
     computed: {
       vif() {
