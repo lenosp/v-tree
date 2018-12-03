@@ -16,3 +16,4 @@ selenium-debug.log
 *.njsproj
 *.sln
 /node_modules/**
+package-lock.json
