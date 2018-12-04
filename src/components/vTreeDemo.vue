@@ -6,13 +6,18 @@
     <Tree
       :treeNode="treeNode"
       :allOpen="allOpen"
-      :clickChange="clickChange"
+      :nodeTrigger="nodeTrigger"
       :checkBox="checkBox"
       :checkBoxed="checkBoxed"
       :beforeClick="beforeClick"
       :checkBoxType="checkBoxType"
-      @call="call"
+      :clickNode="clickNode"
+      :hiddenLine="hiddenLine"
       @checkBoxCall="checkBoxCall"
+      @call='call'
+      :async="async"
+      :onlyRequest="onlyRequest"
+      :asyncCall="asyncCall"
     />
 
     ----------------------------------
@@ -28,9 +33,15 @@
         </span>
       第一级别
     </button>
-    <button @click="clickChange=!clickChange">
-      <span :style="{color:clickChange?'#66CD00':'red'}">
-      {{clickChange?'已开启':'已关闭'}}
+    <button @click="clickFirstNode=!clickFirstNode">
+       <span :style="{color:clickFirstNode?'red':'#66CD00'}">
+      {{clickFirstNode?'已禁止':'已允许'}}
+       </span>
+      选中第一个节点({{clickFirstNode}})
+    </button>
+    <button @click="nodeTrigger=!nodeTrigger">
+      <span :style="{color:nodeTrigger?'#66CD00':'red'}">
+      {{nodeTrigger?'已开启':'已关闭'}}
       </span>
       子节点打开事件
     </button>
@@ -40,6 +51,13 @@
       </span>
       复选框
     </button>
+    <button @click="checkBoxType=!checkBoxType">
+      <span :style="{color:checkBoxType?'#66CD00':'red'}">
+      {{checkBoxType?'已开启':'已关闭'}}
+      </span>
+      复选框级联选中
+    </button>
+
     <br/>
     <pre>
       {{shuoming()}}
@@ -75,7 +93,7 @@
         treeNode: [],
         allOpen: null,
         allClose: null,
-        clickChange: false,
+        nodeTrigger: false,
         /*是否开启复选框*/
         checkBox: true,
         checkBoxed: false,
@@ -86,13 +104,12 @@
         tree: [],
         trees: [],
         firstIsOpen: false,
+        hiddenLine: false,
+        async: false,
+        onlyRequest: true,
       }
     },
     methods: {
-      show(value, oldValue) {
-        console.log('show', value)
-        // console.log('oldValue:',oldValue);
-      },
       isOpen() {
         if (this.allOpen == null) {
           return '系统默认';
@@ -128,10 +145,27 @@
       call(data) {
         //console.log('data', data);
         this.trees = data;
+      },
+      /*点击节点信息 上个点击节点信息*/
+      clickNode(data, oldData) {
+        /*if(data.children){
+          data.children.push({
+            id: (new Date()).getTime(),
+            name:'新增节点',
+            children:[]
+          });
+        }else{
+        }*/
+        console.log(data, oldData);
+        //data.open=true;
+      },
+      /*异步回调函数*/
+      asyncCall(data) {
+
       }
     },
     mounted() {
-      this.allOpen = true;
+      // this.allOpen = true;
 
     },
     computed: {
@@ -147,7 +181,7 @@
               :allOpen='allOpen'
 
               <!--Click on a node to trigger a node event 点击节点是否触发节点事件-->
-              :clickChange='clickChange'
+              :nodeTrigger='nodeTrigger'
 
               <!--Open/close the check box 开启/关闭复选框-->
               :checkBox='checkBox'
@@ -156,12 +190,16 @@
 
               :beforeClick='beforeClick'
 
-              :checkBoxType='checkBoxType'
+              <!-- Open/close Cascade Selection 开启/关闭级联选中 -->
 
+              :checkBoxType='checkBoxType'
+              <!--Initialization callback data 初始化回调数据-->
               @call='call'
 
             <!--Check/uncheck check box callback function 选中/取消选中复选框回调函数-->
               @checkBoxCall='checkBoxCall'
+              <!--是否隐藏连接线 default false-->
+               hiddenLine:false,
           />
           */
           `;

@@ -1,11 +1,10 @@
 <template>
-
   <li>
       <span v-if="vif()" title=""
             @click="vShow(tree)"
             class="button  switch"
             :class="vTreeFirstSpan()"></span>
-    <span v-else title="" class="button level0 switch "
+    <span v-else title="" class="button switch "
           :class="classes()"></span>
 
     <span v-if="checkBox" @click="selectCheckBox(tree)" class="button chk"
@@ -16,7 +15,7 @@
        @click="selectNode"
        :class="aClass()"
        :title="tree.name">
-      <span title="" class="button" :class="iconCss()"></span>
+      <span :title="tree.name" class="button" :class="iconCss()"></span>
       <span class="node_name">{{tree.name}}</span>
     </a>
     <ul :class="line">
@@ -24,20 +23,30 @@
         v-for="(tr,i) in tree.children"
         v-show="tree.open"
         :key="i"
-        :vParentIndex="i" :checkBoxType="tr.checkBoxType" :allOpen="tr.allOpen"
+        :checkBoxType="checkBoxType"
+        :allOpen="tr.allOpen"
         :first="false"
         :checkBoxed="tr.checkBoxed"
         :checkBox="checkBox"
-        :clickChange="clickChange"
+        :nodeTrigger="nodeTrigger"
         :index="i"
         :tree="tr"
         :currentArray="tree.children"
         :parentTree="tr.parentTree"
         :rootData="rootData"
+        :clickNode="clickNode"
+        @addNode="addNode"
         @checkedBoxV="checkedBoxV"
+        :beforeClick="beforeClick"
         :checkBoxCallInit="checkBoxCallInit"
         :checkBoxCall="checkBoxCall"
-        :last="tree.children.length-1===i"/>
+        :last="tree.children.length-1===i"
+        :hiddenLine="tr.hiddenLine"
+        :async="async"
+        :onlyRequest="onlyRequest"
+        :asyncCall="asyncCall"
+
+      />
     </ul>
   </li>
 
@@ -57,7 +66,7 @@
         default: null,
         required: false,
       },
-      clickChange: {
+      nodeTrigger: {
         type: Boolean,
         default: false,
         required: false,
@@ -74,7 +83,7 @@
       },
       checkBoxType: {
         type: Boolean,
-        default: false,
+        default: true,
         required: false,
       },
       beforeClick: {
@@ -89,11 +98,6 @@
       first: {
         type: Boolean,
         default: true,
-        required: false,
-      },
-      vParentIndex: {
-        type: Number,
-        default: -1,
         required: false,
       },
       currentArray: {
@@ -117,8 +121,28 @@
       },
       checkBoxCall: {
         type: Function,
+      },
+      clickNode: {
+        type: Function,
+      },
+      asyncCall: {
+        type: Function,
+      },
+      hiddenLine: {
+        type: Boolean,
+        default: false,
+        required: false,
+      },
+      async: {
+        type: Boolean,
+        default: false,
+        required: false,
+      },
+      onlyRequest: {
+        type: Boolean,
+        default: true,
+        required: false,
       }
-
     },
     data() {
       return {
@@ -128,7 +152,7 @@
     },
     methods: {
       coreInit() {
-        this.line = this.currentArray.length - 1 === this.index ? '' : 'line';
+        this.line = this.hiddenLine ? '' : this.currentArray.length - 1 === this.index ? '' : 'line';
         if (this.tree.parentTree && this.tree.checked) {
           /*方案一 Scheme 1*/
           let checkedBoxArr = [];
@@ -156,61 +180,83 @@
       pNode(tree) {
         return tree.open;
       },
-      vShow(node) {
-        node.open = !node.open;
+      vShow(tree) {
+        /*需要有异步加载  need add async loading*/
+        /*默认异步加载给他按钮 当加载后才能判别时候有子节点 */
+        if (this.async && this.onlyRequest) {
+          let requestDataArr=this.asyncCall.call(this, tree);
+
+        }
+        tree.open = !tree.open;
       },
       selectNode() {
-        //清除其它
-        let clearStyle = (data) => {
-          data.forEach(d => {
-            d.active = false;
-            if (d.children) {
-              clearStyle(d.children);
-            }
-          });
-        };
-        clearStyle(this.rootData);
-        this.tree.active = true;
-        if (this.clickChange) {
-          this.tree.open = !this.tree.open;
+        let isClick = this.beforeClick.call(this, this.tree);
+        if (isClick) {
+          //清除其它
+          let pro = null;
+          let clearStyle = (data) => {
+            data.forEach(d => {
+              if (d.active) pro = d;
+              d.active = false;
+              if (d.children) {
+                clearStyle(d.children);
+              }
+            });
+          };
+          clearStyle(this.rootData);
+          this.tree.active = true;
+          if (this.nodeTrigger) {
+            this.tree.open = !this.tree.open;
+          }
+          this.clickNode.call(this, this.tree, pro);
         }
+      },
+      addNode(arr) {
+        arr.forEach(a=>{
+          if(a.id){
 
+          }
+        });
       },
       selectCheckBox(tree) {
         tree.checked = !tree.checked;
         let checkedBoxArr = [];
         checkedBoxArr.push(tree);
-        let changeChecked = (data) => {
-          data.forEach(d => {
-            checkedBoxArr.push(d);
-            d.checked = tree.checked;
-            if (d.children) changeChecked(d.children);
-          });
-        };
-        changeChecked(tree.children);
-
-        let checkChildren = (data) => {
-          for (let i = 0; i < data.length; i++) {
-            if (data[i].checked)
-              return true;
-          }
-        };
-        let selectParent = (data) => {
-          if (data.children.length > 1) {
-            const childExistsThis = [];
-            data.children.forEach((m, index) => {
-              if (index !== this.index)
-                childExistsThis.push(m);
+        if (this.checkBoxType) {
+          /*级联*/
+          let changeChecked = (data) => {
+            data.forEach(d => {
+              checkedBoxArr.push(d);
+              d.checked = tree.checked;
+              if (d.children) changeChecked(d.children);
             });
-            if (childExistsThis && data.checked && checkChildren(childExistsThis))
-              return;
-          }
-          checkedBoxArr.push(data);
-          data.checked = tree.checked;
-          if (data.parentTree) selectParent(data.parentTree);
-        };
-        if (this.parentTree)
-          selectParent(this.parentTree);
+          };
+          changeChecked(tree.children);
+
+          let checkChildren = (data) => {
+            for (let i = 0; i < data.length; i++) {
+              if (data[i].checked)
+                return true;
+            }
+          };
+          let selectParent = (data) => {
+            if (data.children.length > 1) {
+              const childExistsThis = [];
+              data.children.forEach((m, index) => {
+                if (index !== this.index)
+                  childExistsThis.push(m);
+              });
+              if (childExistsThis && data.checked && checkChildren(childExistsThis))
+                return;
+            }
+            checkedBoxArr.push(data);
+            data.checked = tree.checked;
+            if (data.parentTree) selectParent(data.parentTree);
+          };
+          if (this.parentTree)
+            selectParent(this.parentTree);
+        }
+
         this.checkBoxCall(checkedBoxArr, tree.checked);
       }
     },
@@ -220,18 +266,30 @@
     computed: {
       vif() {
         return function () {
-          return this.tree.children.length > 0;
+          return this.async ? true : this.tree.children.length > 0;
         }
       },
       vTreeFirstSpan() {
         return function () {
-          return this.currentArray.length - 1 === this.index ? this.tree.open ? 'bottom_open' : 'bottom_close'
-            : this.tree.open ? 'roots_open' : 'roots_close';
+          return this.hiddenLine ? this.tree.open ? 'noline_open treenode_switch' : 'noline_close treenode_switch' :
+            this.currentArray.length - 1 === this.index ? this.tree.open ? 'bottom_open' : 'bottom_close'
+              :
+              this.tree.open ? 'roots_open' : 'roots_close';
         }
       },
       classes() {
         return function () {
-          return this.first ? 'roots_docu' : this.currentArray.length - 1 === this.index ? 'bottom_docu' : 'center_docu'
+          console.log(this.first)
+          return this.hiddenLine ?
+            'noline_docu'
+            :
+            this.first ?
+              'roots_docu'
+              :
+              this.currentArray.length - 1 === this.index ?
+                'bottom_docu'
+                :
+                'center_docu'
         }
       },
       iconCss() {

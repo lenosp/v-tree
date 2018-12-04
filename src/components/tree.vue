@@ -8,15 +8,22 @@
              :beforeClick="beforeClick"
              :checkBoxed="checkBoxed"
              :checkBox="checkBox"
-             :clickChange="clickChange"
+             :nodeTrigger="nodeTrigger"
              :index="index"
              :tree="node"
-             :first="first"
+             :first="index===0"
+             :last="treeData.length-1===index"
+             :addNode="addNode"
              :currentArray="treeData"
              :parentTree="node.parentTree"
              :rootData="treeData"
              :checkBoxCallInit="checkBoxCallInit"
              :checkBoxCall="checkBoxCall"
+             :clickNode="clickNode"
+             :hiddenLine="hiddenLine"
+             :async="async"
+             :onlyRequest="onlyRequest"
+             :asyncCall="asyncCall"
       />
     </ul>
   </div>
@@ -24,7 +31,6 @@
 
 <script>
   import vTree from '../components/tree-core'
-  import Vue from 'vue';
 
   export default {
     components: {vTree},
@@ -42,7 +48,7 @@
         default: null,
         required: false,
       },
-      clickChange: {
+      nodeTrigger: {
         type: Boolean,
         default: false,
         required: false,
@@ -59,13 +65,40 @@
       },
       checkBoxType: {
         type: Boolean,
-        default: false,
+        default: true,
         required: false,
       },
       beforeClick: {
         type: Function,
         default: null
       },
+      clickNode: {
+        type: Function,
+      },
+      addNode: {
+        type: Function,
+      },
+      asyncCall: {
+        type: Function,
+      },
+      hiddenLine: {
+        type: Boolean,
+        default: false,
+        required: false,
+      },
+      async: {
+        type: Boolean,
+        default: false,
+        required: false,
+      },
+      /*By default, data is requested once every time it is opened
+       默认每次打开都请求一次数据
+       */
+      onlyRequest: {
+        type: Boolean,
+        default: true,
+        required: false,
+      }
     },
     data() {
       return {
@@ -81,7 +114,9 @@
         let tempList = JSON.parse(JSON.stringify(this.treeNode));
 
         let initTree = (tree, parent) => {
-          tree.forEach((m, index) => {
+          for (let index = 0; index < tree.length; index++) {
+            let m = tree[index];
+            //tree.forEach((m, index) => {
             if (!m.hasOwnProperty("id")) {
               m.id = m.hasOwnProperty("id") ? m.id : null;
             }
@@ -94,11 +129,11 @@
             if (!m.hasOwnProperty("checkBox")) {
               m.checkBox = m.hasOwnProperty("checkBox") ? m.checkBox : false;
             }
-            if (!m.hasOwnProperty("clickChange")) {
-              m.clickChange = m.hasOwnProperty("clickChange") ? m.clickChange : false;
+            if (!m.hasOwnProperty("nodeTrigger")) {
+              m.nodeTrigger = m.hasOwnProperty("nodeTrigger") ? m.nodeTrigger : false;
             }
             if (!m.hasOwnProperty("checkBoxType")) {
-              m.checkBoxType = m.hasOwnProperty("checkBoxType") ? m.checkBoxType : false;
+              m.checkBoxType = this.checkBoxType
             }
             if (!m.hasOwnProperty("last")) {
               m.last = m.hasOwnProperty("last") ? m.last : false;
@@ -112,16 +147,27 @@
             if (!m.hasOwnProperty("active")) {
               m.active = m.hasOwnProperty("active") ? m.active : false;
             }
+            if (!m.hasOwnProperty("async")) {
+              m.async = this.async;
+              if (this.async) {
+                m.onlyRequest = this.onlyRequest;
+              }
+            }
+            if (!m.hasOwnProperty("hiddenLine")) {
+              m.hiddenLine = this.hiddenLine;
+            }
             if (!m.hasOwnProperty("parentTree")) {
               m.parentTree = parent ? parent : null;
             }
 
             m.children = m.children || [];
-
-            initTree(m.children, m);
-          });
+            if (m.children.length > 0)
+              initTree(m.children, m);
+            //});
+          }
         };
         initTree(tempList, null);
+
         this.treeData = tempList;
         this.line = 'line';
         if (this.first)
@@ -155,7 +201,6 @@
             this.checkedBoxCallArr.forEach((ss, index) => {
               if (((ss.id ? ss.id : null) + ss.index + ss.name) === key) {
                 this.checkedBoxCallArr.splice(index, 1);
-
               }
             });
           });
@@ -167,12 +212,12 @@
       this.init();
     },
     update() {
-      this.init();
+      // this.init();
     },
     mounted() {
-      Vue.nextTick(() => {
+      /*Vue.nextTick(() => {
         this.init();
-      });
+      });*/
       /*复选框回调*/
       this.$emit('checkBoxCall', this.checkedBoxCallArr);
     },
