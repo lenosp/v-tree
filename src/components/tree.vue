@@ -6,7 +6,6 @@
              :checkBoxType="checkBoxType"
              :allOpen="allOpen"
              :beforeClick="beforeClick"
-             :checkBoxed="checkBoxed"
              :checkBox="checkBox"
              :nodeTrigger="nodeTrigger"
              :index="index"
@@ -22,7 +21,6 @@
              :clickNode="clickNode"
              :hiddenLine="hiddenLine"
              :async="async"
-             :onlyRequest="onlyRequest"
              :asyncCall="asyncCall"
       />
     </ul>
@@ -58,11 +56,6 @@
         default: false,
         required: false,
       },
-      checkBoxed: {
-        type: Boolean,
-        default: false,
-        required: false,
-      },
       checkBoxType: {
         type: Boolean,
         default: true,
@@ -91,14 +84,6 @@
         default: false,
         required: false,
       },
-      /*By default, data is requested once every time it is opened
-       默认每次打开都请求一次数据
-       */
-      onlyRequest: {
-        type: Boolean,
-        default: true,
-        required: false,
-      }
     },
     data() {
       return {
@@ -141,17 +126,11 @@
             if (!m.hasOwnProperty("first")) {
               m.first = m.hasOwnProperty("first") ? m.first : false;
             }
-            if (!m.hasOwnProperty("vParentIndex")) {
-              m.vParentIndex = m.hasOwnProperty("vParentIndex") ? m.vParentIndex : index;
-            }
             if (!m.hasOwnProperty("active")) {
               m.active = m.hasOwnProperty("active") ? m.active : false;
             }
             if (!m.hasOwnProperty("async")) {
               m.async = this.async;
-              if (this.async) {
-                m.onlyRequest = this.onlyRequest;
-              }
             }
             if (!m.hasOwnProperty("hiddenLine")) {
               m.hiddenLine = this.hiddenLine;

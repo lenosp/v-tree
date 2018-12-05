@@ -15,7 +15,7 @@
        @click="selectNode"
        :class="aClass()"
        :title="tree.name">
-      <span :title="tree.name" class="button" :class="iconCss()"></span>
+      <span :title="tree.name" class="button" :class="iconCss()" :style="load()"></span>
       <span class="node_name">{{tree.name}}</span>
     </a>
     <ul :class="line">
@@ -26,7 +26,6 @@
         :checkBoxType="checkBoxType"
         :allOpen="tr.allOpen"
         :first="false"
-        :checkBoxed="tr.checkBoxed"
         :checkBox="checkBox"
         :nodeTrigger="nodeTrigger"
         :index="i"
@@ -43,7 +42,6 @@
         :last="tree.children.length-1===i"
         :hiddenLine="tr.hiddenLine"
         :async="async"
-        :onlyRequest="onlyRequest"
         :asyncCall="asyncCall"
 
       />
@@ -72,11 +70,6 @@
         required: false,
       },
       checkBox: {
-        type: Boolean,
-        default: false,
-        required: false,
-      },
-      checkBoxed: {
         type: Boolean,
         default: false,
         required: false,
@@ -138,16 +131,12 @@
         default: false,
         required: false,
       },
-      onlyRequest: {
-        type: Boolean,
-        default: true,
-        required: false,
-      }
     },
     data() {
       return {
         line: '',
         currentTree: this.tree,
+        asyncLoading: false,
       }
     },
     methods: {
@@ -183,11 +172,16 @@
       vShow(tree) {
         /*需要有异步加载  need add async loading*/
         /*默认异步加载给他按钮 当加载后才能判别时候有子节点 */
-        if (this.async && this.onlyRequest) {
-          let requestDataArr=this.asyncCall.call(this, tree);
-
+        if (this.async && !tree.open && tree.children.length === 0) {
+          this.asyncCall.call(this, tree, this.asyncBack);
+          this.asyncLoading = true;
         }
         tree.open = !tree.open;
+      },
+      asyncBack(requestDataArr) {
+        if (typeof requestDataArr)
+          this.addNode(requestDataArr);
+        this.asyncLoading = false;
       },
       selectNode() {
         let isClick = this.beforeClick.call(this, this.tree);
@@ -212,11 +206,28 @@
         }
       },
       addNode(arr) {
-        arr.forEach(a=>{
-          if(a.id){
-
-          }
-        });
+        try {
+          arr.forEach(a => {
+            this.tree.children.push({
+              id: a.id ? a.id : null,
+              name: a.name,
+              open: a.open ? a.open : false,
+              checked: a.checked ? a.checked : false,
+              checkBox: a.checkBox ? a.checkBox : false,
+              nodeTrigger: a.nodeTrigger ? a.nodeTrigger : this.nodeTrigger,
+              checkBoxType: this.checkBoxType,
+              last: false,
+              first: false,
+              active: false,
+              async: this.async,
+              hiddenLine: this.hiddenLine,
+              parentTree: this.tree,
+              children: [],
+            });
+          });
+        } catch (e) {
+          console.error('The asynchronous callback parameter must be an array,异步回调参数必须是数组');
+        }
       },
       selectCheckBox(tree) {
         tree.checked = !tree.checked;
@@ -279,7 +290,6 @@
       },
       classes() {
         return function () {
-          console.log(this.first)
           return this.hiddenLine ?
             'noline_docu'
             :
@@ -295,6 +305,12 @@
       iconCss() {
         return function () {
           return this.tree.children.length > 0 ? this.tree.open ? 'ico_open' : 'ico_close' : 'ico_docu';
+        }
+      },
+      load() {
+        return function () {
+          return this.asyncLoading ?
+            'background:url(../../static/img/loading.gif) 0 0 no-repeat' : ''
         }
       },
       aClass() {
