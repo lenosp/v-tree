@@ -2,7 +2,6 @@
 
 > Tree menu based on Vue
 
-## Build Setup
 ***en:A demo path: v-tree/src/components/vTreeDemo.Vue***
 
 ***zh:一个demo的路径: v-tree/src/components/vTreeDemo.Vue***
@@ -93,7 +92,7 @@ If you find a mistake,Welcome Pull Request
 
 ![image](https://github.com/lenosp/v-tree/blob/master/TIM%E6%88%AA%E5%9B%BE20181202211248.png)
 
-
+## Build Setup
 ``` bash
 # install dependencies
 npm install
