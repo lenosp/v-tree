@@ -86,6 +86,23 @@ asyncCall(data, call) {    //data:Current node information
 async loading callback function
 异步回调函数function(data,call)，data:current node， call 回调执行，接收一个数组参数
 
+A complete example：
+``` bash
+    <Tree
+        :treeNode="treeNode"
+        :allOpen="allOpen"
+        :nodeTrigger="nodeTrigger"
+        :checkBox="checkBox"
+        :beforeClick="beforeClick"
+        :checkBoxType="checkBoxType"
+        :clickNode="clickNode"
+        :hiddenLine="hiddenLine"
+        @checkBoxCall="asyncCheckBoxCall"
+        @call='callAsync'
+        :async="async"
+        :asyncCall="asyncCall"
+    />
+```
 
 ## Pull Request
 If you find a mistake,Welcome Pull Request
