@@ -34,7 +34,6 @@
         :parentTree="tr.parentTree"
         :rootData="rootData"
         :clickNode="clickNode"
-        @addNode="addNode"
         @checkedBoxV="checkedBoxV"
         :beforeClick="beforeClick"
         :checkBoxCallInit="checkBoxCallInit"

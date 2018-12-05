@@ -222,7 +222,7 @@
 
               <!--
               Trigger the callback function before clicking on the node
-              return false Unable to trigger clickNode
+              ,return false Unable to trigger clickNode
 
               点击节点前触发回调函数，return false 无法触发clickNode事件-->
               :beforeClick='beforeClick'
@@ -237,8 +237,8 @@
               :checkBox='checkBox'
 
               <!--Open/close Cascade Selection 开启/关闭级联选中 -->
-
               :checkBoxType='checkBoxType'
+
               <!--Initialization callback data 初始化回调数据-->
               @call='call'
 

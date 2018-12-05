@@ -12,7 +12,6 @@
              :tree="node"
              :first="index===0"
              :last="treeData.length-1===index"
-             :addNode="addNode"
              :currentArray="treeData"
              :parentTree="node.parentTree"
              :rootData="treeData"
@@ -66,9 +65,6 @@
         default: null
       },
       clickNode: {
-        type: Function,
-      },
-      addNode: {
         type: Function,
       },
       asyncCall: {
