@@ -188,13 +188,15 @@
           //清除其它
           let pro = null;
           let clearStyle = (data) => {
-            data.forEach(d => {
-              if (d.active) pro = d;
-              d.active = false;
-              if (d.children) {
+            for (let i = 0; i < data.length; i++) {
+              let d = data[i];
+              if (d.active) {
+                pro = d;
+                d.active = !d.active;
+              } else if (d.children) {
                 clearStyle(d.children);
               }
-            });
+            }
           };
           clearStyle(this.rootData);
           this.tree.active = true;

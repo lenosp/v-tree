@@ -50,6 +50,11 @@ return false Unable to trigger clickNode
 click node callback function
 点击节点 回调函数
 ``` bash
+:hiddenLine    type:Boolean     default: false
+```
+Hide hidden lines
+是否隐藏 虚线
+``` bash
 :checkBox    type:boolean     default:false
 ```
 Open/close the check box 
