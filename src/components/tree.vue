@@ -97,7 +97,6 @@
         let initTree = (tree, parent) => {
           for (let index = 0; index < tree.length; index++) {
             let m = tree[index];
-            //tree.forEach((m, index) => {
             if (!m.hasOwnProperty("id")) {
               m.id = m.hasOwnProperty("id") ? m.id : null;
             }
@@ -138,7 +137,6 @@
             m.children = m.children || [];
             if (m.children.length > 0)
               initTree(m.children, m);
-            //});
           }
         };
         initTree(tempList, null);
@@ -148,7 +146,7 @@
         if (this.first)
           this.$emit('call', this.treeData);
       },
-      changeOpenStatus() {
+      changeStatus() {
         let changeOpen = (data) => {
           data.forEach(d => {
             d.open = this.allOpen;
@@ -187,18 +185,14 @@
       this.init();
     },
     update() {
-      // this.init();
     },
     mounted() {
-      /*Vue.nextTick(() => {
-        this.init();
-      });*/
       /*复选框回调*/
       this.$emit('checkBoxCall', this.checkedBoxCallArr);
     },
     watch: {
       allOpen() {
-        this.changeOpenStatus()
+        this.changeStatus()
       }
     }
   }

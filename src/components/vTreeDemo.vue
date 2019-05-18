@@ -1,7 +1,7 @@
 <template>
   <div style="height: auto">
     <span>
-      z-tree demo
+      v-tree demo
     </span>
     <div style="height: auto">
       <span>1、开启/关闭所有节点</span>
@@ -97,19 +97,6 @@
     </div>
 
   </div>
-  <!--
-  <button @click="clickFirstNode=!clickFirstNode">
-     <span :style="{color:clickFirstNode?'#66CD00':'red'}">
-    {{clickFirstNode?'已禁止':'已允许'}}
-     </span>
-    选择第一个节点
-  </button>
-  <button @click="checkFirstCheckBox=!checkFirstCheckBox">
-     <span :style="{color:checkFirstCheckBox?'#66CD00':'red'}">
-    {{checkFirstCheckBox?'已禁止':'已允许'}}
-     </span>
-    选择第一个复选框
-  </button>-->
 
 </template>
 
